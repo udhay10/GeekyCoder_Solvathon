@@ -8,6 +8,7 @@
     <PackageReference Include="MySql.Data" Version="8.0.26" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Data.Oledb" Version="4.5.1" />
+    <PackageReference Include="MySQLConnector" Version="1.0.0" />
   </ItemGroup>
 
 
