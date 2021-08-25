@@ -47,10 +47,10 @@
     <div class="container cont">
         <div class="form-group-row">
             <div class="col-sm-2">
-            <div class="flex-container">
+            <div class="flex-container ex1">
                     <div class="flex-child magenta">
                         <div><b>Source List</b></div>
-                      <div cdkDropList class="example-list ex1 " (cdkDropListDropped)="drop($event)">
+                      <div cdkDropList class="example-list  " (cdkDropListDropped)="drop($event)">
                           <table>
                               <tr class="example-box" *ngFor="let items of ApiData.SourceCol" cdkDrag [cdkDragDisabled]="true">
                                   <td>
@@ -65,9 +65,9 @@
             </div>
             <div class="col-sm-4"></div>
             <div class="col-sm-2">
-                <div class="flex-child green">
+                <div class="flex-child green ex2">
                     <div><b>Distination List</b></div>
-                    <div cdkDropList class="example-list ex1" (cdkDropListDropped)="drop($event)">
+                    <div cdkDropList class="example-list " (cdkDropListDropped)="drop($event)">
                         <table>
                             <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
                                 <td >
