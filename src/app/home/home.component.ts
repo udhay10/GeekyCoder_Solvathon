@@ -26,6 +26,7 @@ export class HomeComponent implements OnInit {
   DistSheet:string;
   wbSorce: XLSX.WorkBook;
   wbDist:XLSX.WorkBook;
+  UniqueKeys=[];
   DistCol:any;
   errorMessage: any;
 
