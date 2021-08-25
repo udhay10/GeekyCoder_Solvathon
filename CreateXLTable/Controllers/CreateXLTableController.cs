@@ -31,43 +31,23 @@ namespace CreateXLTable.Controllers
 [HttpGet]
 public async Task<JsonResult> DataLoad( )
 {
-DataTable dt = new System.Data.DataTable();
+        CreateXLTableClass obj= new CreateXLTableClass();
             try
-            {
-                string filename = @"B:/Source.xlsx";
-                string sWorkbook = string.Empty;
-                string ExcelConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filename + ";Extended Properties='Excel 12.0 xml;HDR=Yes;IMEX=1'";
-                object json=string.Empty;
-                OleDbConnection OleDbConn = new OleDbConnection(ExcelConnectionString);
-                OleDbConn.Open();
-                DataTable dtExcelSchema;
-                    await Task.Delay(1);
-                dtExcelSchema = OleDbConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                for (int i = 0; i <= dtExcelSchema.Rows.Count - 1; i++)
+            {   object json = string.Empty;
+                obj.srcFilename =@"B:/source.xlsx";
+                obj.srcSheetname = "Source";
+                obj.dstnFilename= @"B:/source.xlsx";
+                obj.dstnSheetname ="Destination";
+                if(obj.srcFilename != null)
                 {
-                    sWorkbook = string.Empty;
-                    sWorkbook = dtExcelSchema.Rows[i]["TABLE_NAME"].ToString();
-                    //sWorkbook = sWorkbook.Replace('$', ' ');
-                    OleDbCommand OleDbCmd = new OleDbCommand();
-                    OleDbCmd.Connection = OleDbConn;
-                    OleDbCmd.CommandText = "SELECT * FROM [" + sWorkbook + "]";
-
-                    DataSet ds = new DataSet();
-                    OleDbDataAdapter sda = new OleDbDataAdapter();
-                    sda.SelectCommand = OleDbCmd;
-                    sda.Fill(ds);
-                    dt = ds.Tables[0];
-                    sWorkbook = sWorkbook.Remove(sWorkbook.LastIndexOf("$"));
-                    sWorkbook = sWorkbook + "tbl";
-                    ds.Tables[0].TableName = sWorkbook.ToString();
-                   CreateTablefromDataTable(ds.Tables[0]);
-                   // Console.Write(sWorkbook);
-                    json = DataTableToJSONWithStringBuilder(ds.Tables[0]);
-                   // AutoSqlBulkCopy(ds.Tables[0]);
-                   await MySqlBlkCopyAsync(ds.Tables[0],sWorkbook );
-
+                    Console.Write("src file\n");
+                    await CreateTablefromFile(obj.srcFilename,obj.srcSheetname+"$");/** To create Source Table in MYSQL and insert filedata into the tabel**/
                 }
-                OleDbConn.Close();
+                if(obj.dstnFilename != null)
+                {
+                    Console.Write("destination file\n");
+                    await CreateTablefromFile(obj.dstnFilename,obj.dstnSheetname+"$");/** To create Destination Table in MYSQL and insert filedata into the tabel**/
+                }
                 return new JsonResult(json);
             }
             catch (Exception ex)
@@ -76,6 +56,56 @@ DataTable dt = new System.Data.DataTable();
             }
            
         }
+public async Task<bool> CreateTablefromFile(string filename,string sheetname)
+{
+    try
+            {
+                
+                //string filename = @"B:/source.xlsx";
+                string sWorkbook = string.Empty;
+                /** Read Excel**/
+                string ExcelConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filename + ";Extended Properties='Excel 12.0 xml;HDR=No;IMEX=1'";
+                object json=string.Empty;
+                OleDbConnection OleDbConn = new OleDbConnection(ExcelConnectionString);
+                OleDbConn.Open();
+                DataTable dtExcelSchema;
+                 //   await Task.Delay(1);
+                dtExcelSchema = OleDbConn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                for (int i = 0; i <= dtExcelSchema.Rows.Count - 1; i++)
+                {
+
+                    sWorkbook = string.Empty;
+                    sWorkbook = dtExcelSchema.Rows[i]["TABLE_NAME"].ToString();
+                    Console.Write("\n sWorkBook Name : {0}, Sheetname : {1}\n",sWorkbook,sheetname);
+                    if(sWorkbook==sheetname)
+                    {
+                    //sWorkbook = sWorkbook.Replace('$', ' ');
+                    OleDbCommand OleDbCmd = new OleDbCommand();
+                    OleDbCmd.Connection = OleDbConn;
+                    OleDbCmd.CommandText = "SELECT * FROM [" + sWorkbook + "]";
+                    DataSet ds = new DataSet();
+                    OleDbDataAdapter sda = new OleDbDataAdapter();
+                    sda.SelectCommand = OleDbCmd;
+                    sda.Fill(ds);
+                    sWorkbook = sWorkbook.Remove(sWorkbook.LastIndexOf("$"));
+                    sWorkbook = sWorkbook + "tbl";
+                    ds.Tables[0].TableName = sWorkbook.ToString();
+                    DataRow rowDel = ds.Tables[0].Rows[0];
+                    CreateTablefromDataTable(ds.Tables[0]); /** Create Table in MYSQL**/
+                    // json = DataTableToJSONWithStringBuilder(ds.Tables[0]);
+                    ds.Tables[0].Rows.Remove(rowDel);
+                    await MySqlBlkCopyAsync(ds.Tables[0],sWorkbook ); /** Insert data into MYSQL table **/
+                    }
+
+                }
+                OleDbConn.Close();
+              return true;
+            }
+            catch (Exception ex)
+            {
+                 throw new Exception(ex.ToString());
+            }
+}
 public async Task<bool> MySqlBlkCopyAsync(DataTable dataTable,string TableName)
     {
         try
@@ -106,10 +136,14 @@ public static void CreateTablefromDataTable(DataTable dataTable)
         string col = string.Empty;
          string createTableBuilder = string.Format("CREATE TABLE " +  dataTable.TableName + "");
         createTableBuilder = createTableBuilder + "(" ;
-        foreach (DataColumn dc in dataTable.Columns)
+        
+                for (int i=0;i<1;i++)
                 {
-                    col =dc.ToString();
-                    createTableBuilder = createTableBuilder +"`" + col.ToString() + "` Char(255),";
+                    for(int j=0;j<dataTable.Columns.Count;j++)
+                    {
+                    col =dataTable.Rows[i][j].ToString();
+                    createTableBuilder = createTableBuilder +"`" + col.ToString() + "` varchar(255),";
+                    }
                 }
                 createTableBuilder = createTableBuilder.Remove(createTableBuilder.Length-1);
                 createTableBuilder = createTableBuilder +");";
@@ -119,7 +153,17 @@ public static void CreateTablefromDataTable(DataTable dataTable)
             cmd.ExecuteNonQuery();    
   
     }
-
+ private List<MySqlBulkCopyColumnMapping> GetMySqlColumnMapping(DataTable dataTable)
+    {
+        List<MySqlBulkCopyColumnMapping> colMappings = new List<MySqlBulkCopyColumnMapping>();
+        int i = 0;
+        foreach (DataColumn col in dataTable.Columns)
+        {
+            colMappings.Add(new MySqlBulkCopyColumnMapping(i, col.ColumnName));
+            i++;
+        }
+        return colMappings;
+    }
 [Route("api/readandreturnjson")]
 [HttpPost]
 //public object ReadAndReturnJsonAsync()
