@@ -1,0 +1,82 @@
+{
+  "format": 1,
+  "restore": {
+    "B:\\WEBAPI\\CreateXLTable\\CreateXLTable.csproj": {}
+  },
+  "projects": {
+    "B:\\WEBAPI\\CreateXLTable\\CreateXLTable.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "B:\\WEBAPI\\CreateXLTable\\CreateXLTable.csproj",
+        "projectName": "CreateXLTable",
+        "projectPath": "B:\\WEBAPI\\CreateXLTable\\CreateXLTable.csproj",
+        "packagesPath": "D:\\Users\\VCC91013\\.nuget\\packages\\",
+        "outputPath": "B:\\WEBAPI\\CreateXLTable\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "\\\\pahmdclcifs01\\HAM$\\VCC91013\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp5.0"
+        ],
+        "sources": {
+          "https://artifactory.amerhonda.com/artifactory/api/nuget/ahm_nars_nuget/": {},
+          "https://www.nuget.org/api/v2": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "netcoreapp5.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "netcoreapp5.0",
+          "dependencies": {
+            "MySQLConnector": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "MySql.Data": {
+              "target": "Package",
+              "version": "[8.0.26, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "System.Data.Oledb": {
+              "target": "Package",
+              "version": "[4.5.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.400\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
