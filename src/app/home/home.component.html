@@ -1,0 +1,143 @@
+<h2 class="text-center">Database Comparision</h2>
+<hr>
+<div  *ngIf="frmValid" class="alert alert-danger">
+    <div *ngIf="frmValid">
+        <b>{{errorMessage}}</b>
+    </div>
+</div>
+<form>
+    <div class="container">
+        <div class="form-group row ">
+            <div class="col-sm-6">
+                <h4>Source File</h4>
+                <input type="file" class="file-upload col-sm-6" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onSourceChange($event)" #inputSource/>
+                
+                <div class="col-sm-4">
+                    <span *ngIf="Sread">
+                        <select  class="form-control" (change)="onSourceSheet($event)">
+                          <option value="**">Select Sheet</option>
+                          <option *ngFor="let web of SourceSheetlist" [value]="web">{{web}}</option>
+                        </select>
+                    </span>
+                    <div *ngIf="isSourceExcelFile === false">
+                        Source file is not an Excel file
+                      </div>
+                </div>
+                  
+            </div>
+            <div class="col-sm-6">
+                <h4>Destination File</h4>
+                <input type="file" class="file-upload col-sm-6" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onDistChange($event)" #inputDest/>
+                <div class="col-sm-4">
+                    <span *ngIf="Dread">
+                        <select  class="form-control" (change)="onDistSheet($event)">
+                          <option value="**">Select Sheet</option>
+                          <option *ngFor="let web of DistSheetlist" [value]="web">{{web}}</option>
+                        </select>
+                      </span>
+                      
+                      <div *ngIf="isDistExcelFile === false">
+                        Source file is not an Excel file
+                      </div>
+                </div>
+                
+            </div>
+        </div> 
+    </div>
+    <div class="container cont">
+        <div class="form-group-row">
+            <div class="col-sm-2">
+            <div class="flex-container">
+                    <div class="flex-child magenta">
+                        <div><b>Source List</b></div>
+                      <div cdkDropList class="example-list ex1 " (cdkDropListDropped)="drop($event)">
+                          <table>
+                              <tr class="example-box" *ngFor="let items of Sourcekeys" cdkDrag [cdkDragDisabled]="true">
+                                  <td>
+                                    {{items}}
+                                  </td>
+                              </tr>
+                          </table>
+                        <!-- <div class="example-box" *ngFor="let items of Sourcekeys" cdkDrag [cdkDragDisabled]="true">{{items}}</div> -->
+                      </div>
+                      </div>
+                </div>
+            </div>
+            <div class="col-sm-4"></div>
+            <div class="col-sm-2">
+                <div class="flex-child green">
+                    <div><b>Distination List</b></div>
+                    <div cdkDropList class="example-list ex1" (cdkDropListDropped)="drop($event)">
+                        <table>
+                            <tr class="example-box" *ngFor="let items of DistKeys" cdkDrag>
+                                <td >
+                                    {{items}}
+                                </td>
+                            </tr>
+                        </table>
+                      <!-- <div class="example-box" *ngFor="let items of DistKeys" cdkDrag >{{items}}</div> -->
+                    </div>
+                  </div>
+                </div>
+              
+        </div>
+    </div>
+    
+      
+    <div class="container">
+        <div class="form-group row">
+            <div class="col-sm-6">
+                <div class="form-check">
+                    <h4>Table Level Comparision</h4>
+                    <input type="checkbox" class="form-check-input" id="colMap" name="colMap" [(ngModel)]="data.colMap"/>
+                    <label class="form-check-label">Column Level Mapping</label>
+                </div>
+                <div class=" form-check">
+                    <input type="checkbox" class="form-check-input" id="colName" name="colName" [(ngModel)]="data.colName"/>
+                    <label class="form-check-label">Column Name Comparision</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="recordCount" name="recordCount" [(ngModel)]="data.recordCount"/>
+                    <label class="form-check-label">Record Count</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="colSeq" name="colSeq" [(ngModel)]="data.colSeq"/>
+                    <label class="form-check-label">Column Sequencing</label>
+                </div>
+            </div>
+        
+        
+            <div class="col-sm-6">
+            
+            <div class="form-check">
+                <h4>Record Level Comparision</h4>
+                <input type="checkbox" class="form-check-input" id="dataFormat" name="dataFormat" [(ngModel)]="data.dataFormat"/>
+                <label class="form-check-label">Data Format Difference</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="flag" name="flag" [(ngModel)]="data.flagIndicator"/>
+                <label class="form-check-label">Flag Mismatch Indicator</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="symbol" name="symbol" [(ngModel)]="data.symbol"/>
+                <label class="form-check-label">Symbol Mismatch</label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="dupCheck" name="dupCheck" [(ngModel)]="data.dupCheck"/>
+                <label class="form-check-label">Duplicate Check</label>
+            </div>
+            </div>
+        </div>
+    </div>     
+            
+    <div class="container">
+        <div class="form-group row col-sm-4">
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-success" onclick="onStart()">Start</button>
+            </div>
+            <div class="col-sm-4">
+                <button type="reset" class="btn btn-danger">Abort</button>
+            </div>
+        </div>
+    </div>
+</form>
