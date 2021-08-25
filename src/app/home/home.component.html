@@ -52,7 +52,7 @@
                         <div><b>Source List</b></div>
                       <div cdkDropList class="example-list ex1 " (cdkDropListDropped)="drop($event)">
                           <table>
-                              <tr class="example-box" *ngFor="let items of Sourcekeys" cdkDrag [cdkDragDisabled]="true">
+                              <tr class="example-box" *ngFor="let items of ApiData.SourceCol" cdkDrag [cdkDragDisabled]="true">
                                   <td>
                                     {{items}}
                                   </td>
@@ -69,7 +69,7 @@
                     <div><b>Distination List</b></div>
                     <div cdkDropList class="example-list ex1" (cdkDropListDropped)="drop($event)">
                         <table>
-                            <tr class="example-box" *ngFor="let items of DistKeys" cdkDrag>
+                            <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
                                 <td >
                                     {{items}}
                                 </td>
@@ -85,7 +85,7 @@
 
     <div class="container">
         <strong class="text-center">Please Select Unique Key</strong>
-        <dual-list  [source]="Sourcekeys" [(destination)]="UniqueKeys" height="150px"></dual-list>
+        <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.UnqineKeys" height="150px"></dual-list>
     </div>
      
     
@@ -135,6 +135,8 @@
             </div>
         </div>
     </div>     
+
+
             
     <div class="container">
         <div class="form-group row col-sm-4">

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as XLSX from 'xlsx'
 import {DualListComponent} from 'angular-dual-listbox';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
-import { Home } from './home.model';
+import { Home, JsonData } from './home.model';
 import { HomeService } from '../home.service';
 @Component({
   selector: 'app-home',
@@ -15,11 +15,8 @@ export class HomeComponent implements OnInit {
   spinnerEnabled = false;
   Sread=false;
   Dread=false;
-  Sourcekeys: string[];
-  DistKeys:any;
   SourceSheetlist: string[];
   DistSheetlist:string[];
-  target:string;
   isSourceExcelFile:boolean;
   isDistExcelFile:boolean;
   SourceSheet:string;
@@ -29,6 +26,7 @@ export class HomeComponent implements OnInit {
   UniqueKeys=[];
   DistCol:any;
   errorMessage: any;
+  RuleList:any|undefined;
 
    data : Home = {
     colMap:false,
@@ -40,7 +38,23 @@ export class HomeComponent implements OnInit {
     symbol:false,
     dupCheck:false
   }
-  constructor(private service: HomeService) { }
+
+  ApiData: JsonData={
+    SourceFile:undefined,
+    DistFile:undefined,
+    SourceSheetName:undefined,
+    DistSheetName:undefined,
+    SourceCol:undefined,
+    DistCol:undefined,
+    UnqineKeys:[],
+    SelectedRules:undefined
+  };
+
+  constructor(private service: HomeService) {
+    //this.service.getRuleList().subscribe((data)=>{this.RuleList=data});
+   this.RuleList= this.service.getRuleList();
+   console.log(this.RuleList);
+   }
 
   ngOnInit(): void {
   }
@@ -48,6 +62,7 @@ export class HomeComponent implements OnInit {
   onSourceChange(evt){
     const target: DataTransfer=<DataTransfer>(evt.target);
     this.isSourceExcelFile = !!target.files[0].name.match(/(.xls|.xlsx)/);
+    this.ApiData.SourceFile=target.files[0].name;
     if (this.isSourceExcelFile) {
      this.spinnerEnabled = true;
      const reader: FileReader = new FileReader();
@@ -55,12 +70,11 @@ export class HomeComponent implements OnInit {
        /* read workbook */
        const bstr = e.target.result;
        this.wbSorce = XLSX.read(bstr, { type: 'binary' });
- 
+       
        /* grab sheet names */
        this.SourceSheetlist = this.wbSorce.SheetNames;
        this.Sread=true;
       };
- 
      reader.readAsBinaryString(target.files[0]);
  
      reader.onloadend = (e) => {
@@ -71,6 +85,7 @@ export class HomeComponent implements OnInit {
    onDistChange(evt){
      const target: DataTransfer=<DataTransfer>(evt.target);
     this.isDistExcelFile = !!target.files[0].name.match(/(.xls|.xlsx)/);
+    this.ApiData.DistFile=target.files[0].name;
     if (this.isDistExcelFile) {
      this.spinnerEnabled = true;
      const reader: FileReader = new FileReader();
@@ -97,12 +112,12 @@ export class HomeComponent implements OnInit {
      let data;
      
      if (sheet != '**'){
-       
+       this.ApiData.SourceSheetName=sheet;
      const ws: XLSX.WorkSheet=this.wbSorce.Sheets[sheet];
      /*data=XLSX.utils.sheet_to_json(ws); 
      this.Sourcekeys=Object.keys(data[0]);*/
-     this.Sourcekeys=this.get_header_row(ws);
-     console.log(this.Sourcekeys);
+     this.ApiData.SourceCol=this.get_header_row(ws);
+     console.log(this.ApiData.SourceCol);
      }
      else{
        alert('Please Select the correct Sheet');
@@ -114,19 +129,19 @@ export class HomeComponent implements OnInit {
      let data;
      
      if (sheet != '**'){
-       
+      this.ApiData.DistSheetName=sheet;
      const ws: XLSX.WorkSheet=this.wbDist.Sheets[sheet];
      data=XLSX.utils.sheet_to_json(ws); 
-     this.DistKeys=this.get_header_row(ws);
-     console.log(this.DistKeys);
+     this.ApiData.DistCol=this.get_header_row(ws);
+     console.log(this.ApiData.DistCol);
      }
      else{
        alert('Please Select the correct Sheet');
      }
    }
    drop(event: CdkDragDrop<string[]>) {
-     moveItemInArray(this.DistKeys, event.previousIndex, event.currentIndex);
-     console.log(this.DistKeys);
+     moveItemInArray(this.ApiData.DistCol, event.previousIndex, event.currentIndex);
+     console.log(this.ApiData.DistCol);
      //this.service.ColumnNames(JSON.stringify(this.DistKeys));
     //  this.service.ColumnNames(JSON.stringify(this.DistKeys)).subscribe(
     //    data => {

@@ -1,6 +1,6 @@
 import { Injectable,Inject } from '@angular/core';
 import{HttpClient, HttpHeaders} from '@angular/common/http';
-
+import {Observable,of} from 'rxjs';
 const httpOptions = {
   headers: new HttpHeaders({
     'Content-Type' : 'application/json'
@@ -21,5 +21,10 @@ export class HomeService {
       ColumnNames(colNames : any){
         console.log(colNames);
         //return this.http.post(this.servername , colNames);
+      }
+      getRuleList():string{// Observable<any>{
+       // return this.http.get<any[]>(this.url+"getproducts");
+       let rule='{rule1:Column Level Mapping,rule2:Column Name Comparision}';
+       return rule;
       }
 }
