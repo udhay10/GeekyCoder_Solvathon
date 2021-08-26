@@ -47,7 +47,8 @@ export class HomeComponent implements OnInit {
     SourceCol:undefined,
     DistCol:undefined,
     UnqineKeys:[],
-    SelectedRules:undefined
+    SelectedRules:[],
+    FlagVariable:[],
   };
 
   constructor(private service: HomeService) {
@@ -170,9 +171,17 @@ export class HomeComponent implements OnInit {
      }
      return headers;
    }
+  /* onPush(Ch:String){
+     if (Ch === 'S'){
+       this.ApiData.SourceCol.push('Null');
+     }
+     else{
+       this.ApiData.DistCol.push('Null');
+     }
+   }*/
    
   onStart()
   {
-
+      this.service.sendJasonData(this.ApiData);
   }   
 }

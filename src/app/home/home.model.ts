@@ -18,4 +18,5 @@ export class JsonData{
     DistCol:string[];
     UnqineKeys:string[];
     SelectedRules:string[];
+    FlagVariable:string[];
 }

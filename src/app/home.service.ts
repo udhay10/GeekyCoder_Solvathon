@@ -1,6 +1,8 @@
 import { Injectable,Inject } from '@angular/core';
+import { Home, JsonData } from './home/home.model';
 import{HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable,of} from 'rxjs';
+
 const httpOptions = {
   headers: new HttpHeaders({
     'Content-Type' : 'application/json'
@@ -26,5 +28,8 @@ export class HomeService {
        // return this.http.get<any[]>(this.url+"getproducts");
        let rule='{rule1:Column Level Mapping,rule2:Column Name Comparision}';
        return rule;
+      }
+      sendJasonData(data:JsonData){
+        console.log(JSON.stringify(data))
       }
 }

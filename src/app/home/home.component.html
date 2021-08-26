@@ -46,9 +46,9 @@
     </div>
     <div class="container cont">
         <div class="form-group-row">
-            <div class="col-sm-2">
+           <div class="col-sm-2">
             <div class="flex-container ex1">
-                    <div class="flex-child magenta">
+                    <div class="flex-child magenta ">
                         <div><b>Source List</b></div>
                       <div cdkDropList class="example-list  " (cdkDropListDropped)="drop($event)">
                           <table>
@@ -61,31 +61,42 @@
                         <!-- <div class="example-box" *ngFor="let items of Sourcekeys" cdkDrag [cdkDragDisabled]="true">{{items}}</div> -->
                       </div>
                       </div>
+                      <!--<button type="button" class="btn btn-success" (click)="onPush('S')">Push Null to Source</button>-->
                 </div>
             </div>
-            <div class="col-sm-4"></div>
+        
+            <div class="col-sm-4">
+               
+                
+            </div>
             <div class="col-sm-2">
-                <div class="flex-child green ex2">
-                    <div><b>Distination List</b></div>
-                    <div cdkDropList class="example-list " (cdkDropListDropped)="drop($event)">
-                        <table>
-                            <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
-                                <td >
-                                    {{items}}
-                                </td>
-                            </tr>
-                        </table>
-                      <!-- <div class="example-box" *ngFor="let items of DistKeys" cdkDrag >{{items}}</div> -->
+                <div class="flex-container ex2">
+                    <div class="flex-child green">
+                        <div><strong>Distination List   </strong></div>
+                        <div cdkDropList class="example-list " (cdkDropListDropped)="drop($event)">
+                            <table>
+                                <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
+                                    <td >
+                                        {{items}}
+                                    </td>
+                                </tr>
+                            </table>
+                          <!-- <div class="example-box" *ngFor="let items of DistKeys" cdkDrag >{{items}}</div> -->
+                        </div>
                     </div>
-                  </div>
+                   <!-- <button type="button" class="btn btn-primary" (click)="onPush('D')">Push Null to Source</button> -->
                 </div>
-              
+            </div>
         </div>
     </div>
 
-    <div class="container">
+    <div class="container"style="padding: 5px;">
         <strong class="text-center">Please Select Unique Key</strong>
         <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.UnqineKeys" height="150px"></dual-list>
+    </div>
+    <div class="container"style="padding: 5px;">
+        <strong class="text-center" >Please Select Flag Variables if any</strong>
+        <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.FlagVariable" height="150px"></dual-list>
     </div>
      
     
@@ -141,7 +152,7 @@
     <div class="container">
         <div class="form-group row col-sm-4">
             <div class="col-sm-4">
-                <button type="button" class="btn btn-success" onclick="onStart()">Start</button>
+                <button type="button" class="btn btn-success" (click)="onStart()">Start</button>
             </div>
             <div class="col-sm-4">
                 <button type="reset" class="btn btn-danger">Abort</button>
