@@ -183,5 +183,14 @@ export class HomeComponent implements OnInit {
   onStart()
   {
       this.service.sendJasonData(this.ApiData);
-  }   
+  }
+  reset(){
+    console.log("Form Submitted!");
+    this.Sread = false;
+    this.Dread=false;
+    this.ApiData.SourceCol = null;
+    this.SourceSheetlist=null;
+    this.ApiData.DistCol=null;
+    window.location.reload();
+  }
 }
