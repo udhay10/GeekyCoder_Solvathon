@@ -1,4 +1,4 @@
-<h2 class="text-center">Database Comparision</h2>
+<!-- <h2 class="text-center">Database Comparision</h2> -->
 <hr>
 <div  *ngIf="frmValid" class="alert alert-danger">
     <div *ngIf="frmValid">
@@ -8,47 +8,55 @@
 <form>
     <div class="container">
         <div class="form-group row ">
-            <div class="col-sm-6">
+            <div class="col-sm-2">
                 <h4>Source File</h4>
-                <input type="file" class="file-upload col-sm-6" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onSourceChange($event)" #inputSource/>
-                
-                <div class="col-sm-4">
-                    <span *ngIf="Sread">
-                        <select  class="form-control" (change)="onSourceSheet($event)">
-                          <option value="**">Select Sheet</option>
-                          <option *ngFor="let web of SourceSheetlist" [value]="web">{{web}}</option>
-                        </select>
-                    </span>
-                    <div *ngIf="isSourceExcelFile === false">
-                        Source file is not an Excel file
-                      </div>
-                </div>
-                  
+                <input type="file" class="file-upload" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onSourceChange($event)" #inputSource/> 
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-8">
                 <h4>Destination File</h4>
-                <input type="file" class="file-upload col-sm-6" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onDistChange($event)" #inputDest/>
-                <div class="col-sm-4">
-                    <span *ngIf="Dread">
-                        <select  class="form-control" (change)="onDistSheet($event)">
-                          <option value="**">Select Sheet</option>
-                          <option *ngFor="let web of DistSheetlist" [value]="web">{{web}}</option>
-                        </select>
-                      </span>
-                      
-                      <div *ngIf="isDistExcelFile === false">
-                        Source file is not an Excel file
-                      </div>
-                </div>
-                
+                <input type="file" class="file-upload" accept=".csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" placeholder="Upload Source File" (change)="onDistChange($event)" #inputDest/>                
             </div>
-        </div> 
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-success" (click)="onStart()">Start</button>
+            </div>
+            <div class="col-sm-1">
+                <button type="reset" class="btn btn-danger"  (click)="reset()">Abort</button>
+            </div>
+        </div>
     </div>
+    <div class="container">
+        <div class="form-group row">
+            <div class="col-sm-2">
+                <span *ngIf="Sread">
+                    <select  class="form-control" (change)="onSourceSheet($event)">
+                      <option value="**">Select Sheet</option>
+                      <option *ngFor="let web of SourceSheetlist" [value]="web">{{web}}</option>
+                    </select>
+                </span>
+                <div *ngIf="isSourceExcelFile === false">
+                    Source file is not an Excel file
+                  </div>
+            </div>
+            <div class="col-sm-2">
+                <span *ngIf="Dread">
+                    <select  class="form-control" (change)="onDistSheet($event)">
+                      <option value="**">Select Sheet</option>
+                      <option *ngFor="let web of DistSheetlist" [value]="web">{{web}}</option>
+                    </select>
+                  </span>
+                  
+                  <div *ngIf="isDistExcelFile === false">
+                    Source file is not an Excel file
+                  </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container cont">
-        <div class="form-group-row">
-           <div class="col-sm-2">
+        <div class="form-group row">
+            <div class="col-sm-2">
             <div class="flex-container ex1">
-                    <div class="flex-child magenta ">
+                    <div class="flex-child magenta">
                         <div><b>Source List</b></div>
                       <div cdkDropList class="example-list  " (cdkDropListDropped)="drop($event)">
                           <table>
@@ -61,46 +69,33 @@
                         <!-- <div class="example-box" *ngFor="let items of Sourcekeys" cdkDrag [cdkDragDisabled]="true">{{items}}</div> -->
                       </div>
                       </div>
-                      <!--<button type="button" class="btn btn-success" (click)="onPush('S')">Push Null to Source</button>-->
                 </div>
-            </div>
-        
-            <div class="col-sm-4">
-               
-                
             </div>
             <div class="col-sm-2">
-                <div class="flex-container ex2">
-                    <div class="flex-child green">
-                        <div><strong>Distination List   </strong></div>
-                        <div cdkDropList class="example-list " (cdkDropListDropped)="drop($event)">
-                            <table>
-                                <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
-                                    <td >
-                                        {{items}}
-                                    </td>
-                                </tr>
-                            </table>
-                          <!-- <div class="example-box" *ngFor="let items of DistKeys" cdkDrag >{{items}}</div> -->
-                        </div>
+                <div class="flex-child green ex2">
+                    <div><b>Destination List</b></div>
+                    <div cdkDropList class="example-list " (cdkDropListDropped)="drop($event)">
+                        <table>
+                            <tr class="example-box" *ngFor="let items of ApiData.DistCol" cdkDrag>
+                                <td >
+                                    {{items}}
+                                </td>
+                            </tr>
+                        </table>
+                      <!-- <div class="example-box" *ngFor="let items of DistKeys" cdkDrag >{{items}}</div> -->
                     </div>
-                   <!-- <button type="button" class="btn btn-primary" (click)="onPush('D')">Push Null to Source</button> -->
-                </div>
+                  </div>
+            </div>
+            <div class="col-sm-4">
+                <strong class="text-center " >Please Select Unique Key</strong>
+                <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.UnqineKeys" height="150px"></dual-list>
+            </div> 
+            <div class="col-sm-4">
+                <strong class="text-center" >Please Select Flag Variables if any</strong>
+                <dual-list [source]="ApiData.SourceCol" [(destination)]="ApiData.FlagVariable"  height="150px"></dual-list>
             </div>
         </div>
     </div>
-
-    <div class="container"style="padding: 5px;">
-        <strong class="text-center">Please Select Unique Key</strong>
-        <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.UnqineKeys" height="150px"></dual-list>
-    </div>
-    <div class="container"style="padding: 5px;">
-        <strong class="text-center" >Please Select Flag Variables if any</strong>
-        <dual-list  [source]="ApiData.SourceCol" [(destination)]="ApiData.FlagVariable" height="150px"></dual-list>
-    </div>
-     
-    
-      
     <div class="container">
         <div class="form-group row">
             <div class="col-sm-6">
@@ -143,19 +138,6 @@
                 <input type="checkbox" class="form-check-input" id="dupCheck" name="dupCheck" [(ngModel)]="data.dupCheck"/>
                 <label class="form-check-label">Duplicate Check</label>
             </div>
-            </div>
-        </div>
-    </div>     
-
-
-            
-    <div class="container">
-        <div class="form-group row col-sm-4">
-            <div class="col-sm-4">
-                <button type="button" class="btn btn-success" (click)="onStart()">Start</button>
-            </div>
-            <div class="col-sm-4">
-                <button type="reset" class="btn btn-danger">Abort</button>
             </div>
         </div>
     </div>
