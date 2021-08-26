@@ -20,10 +20,10 @@ table {
   padding-bottom: 30px;   
 }
   div.ex1{
-      height: 200px;
+      height: 150px;
       /* overflow: scroll; */
   }
   div.ex2{
-    height: 200px;
+    height: 150px;
     /* overflow: scroll; */
 }
