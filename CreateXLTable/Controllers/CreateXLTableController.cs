@@ -38,15 +38,79 @@ public async Task<JsonResult> DataLoad( )
                 obj.srcSheetname = "Source";
                 obj.dstnFilename= @"B:/source.xlsx";
                 obj.dstnSheetname ="Destination";
+                List<string> uniqueKey = new List<string>();
+                List<string> boolFields= new List<string>();
+                List<string> srcColList = new List<string>();
+                List<string> dstColList= new List<string>();
+                uniqueKey.Add("PAYMENT_ID");
+                uniqueKey.Add("ContractType");
+                uniqueKey.Add("PaymentType");
+                uniqueKey.Add("Is_Payment_Done?");
+                uniqueKey.Add("Payment_due_date");
+                boolFields.Add("Is_Payment_Done?");
+                srcColList.Add("PAYMENT_ID");	
+srcColList.Add("CONTRACT_NO")	;
+srcColList.Add("ContractType");
+srcColList.Add("PaymentType");
+srcColList.Add("CURRENCY_CODE");
+srcColList.Add("FX_Rate");
+srcColList.Add("Cost (USD)");
+srcColList.Add("Cost (Local)");
+srcColList.Add("Payment_due_date");
+srcColList.Add("Approval_date");
+srcColList.Add("Approver_Name");
+srcColList.Add("Is_Payment_Done?");
+srcColList.Add("Cash_localAmt");
+srcColList.Add("Cash_deducted_amt");
+srcColList.Add("Cash_USDAmt");
+srcColList.Add("Balance_Payment_Local")	;
+srcColList.Add("Balance_Payment_USD");
+srcColList.Add("Payment_Received_Date");	
+srcColList.Add("Issue_Date");
+srcColList.Add("Payment_Status");
+srcColList.Add("Last_UpdatedDate");
+srcColList.Add("Payment_Comments");
+srcColList.Add("Products");
+dstColList.Add("PaymentID");
+dstColList.Add("ContractNo");
+dstColList.Add("ContractType");
+dstColList.Add("PaymentType");
+dstColList.Add("CURRENCY_CODE");
+dstColList.Add("FX_Rate");
+dstColList.Add("Cost in USD");
+dstColList.Add("Cost in Local");
+dstColList.Add("Payment_due_date");
+dstColList.Add("Approval_date");
+dstColList.Add("Approver_Name");
+dstColList.Add("IS_PAYMENT_COMPLETE?");
+dstColList.Add("Cash_localAmt");
+dstColList.Add("Cash_deducted_amt");
+dstColList.Add("Cash_USDAmt");
+dstColList.Add("Balance_Payment_Local");
+dstColList.Add("Balance_Payment_USD");
+dstColList.Add("Payment_Received_Date");
+dstColList.Add("Issue_Date");
+dstColList.Add("Payment_Status");
+dstColList.Add("Last_UpdatedDate");
+dstColList.Add("Payment_Comments");
+dstColList.Add("Products");
+dstColList.Add("ID");
+
+                await Task.Delay(1);
+                UniqueKeyMissingRecords(srcColList,dstColList,uniqueKey,boolFields);
                 if(obj.srcFilename != null)
                 {
+                    string TableName = string.Empty;
+                    TableName="source";
                     Console.Write("src file\n");
-                    await CreateTablefromFile(obj.srcFilename,obj.srcSheetname+"$");/** To create Source Table in MYSQL and insert filedata into the tabel**/
+                    await CreateTablefromFile(obj.srcFilename,obj.srcSheetname+"$", TableName);/** To create Source Table in MYSQL and insert filedata into the tabel**/
                 }
                 if(obj.dstnFilename != null)
                 {
+                    string TableName = string.Empty;
+                    TableName="destination";
                     Console.Write("destination file\n");
-                    await CreateTablefromFile(obj.dstnFilename,obj.dstnSheetname+"$");/** To create Destination Table in MYSQL and insert filedata into the tabel**/
+                    await CreateTablefromFile(obj.dstnFilename,obj.dstnSheetname+"$",TableName);/** To create Destination Table in MYSQL and insert filedata into the tabel**/
                 }
                 return new JsonResult(json);
             }
@@ -56,7 +120,7 @@ public async Task<JsonResult> DataLoad( )
             }
            
         }
-public async Task<bool> CreateTablefromFile(string filename,string sheetname)
+public async Task<bool> CreateTablefromFile(string filename,string sheetname, string Tablename)
 {
     try
             {
@@ -89,12 +153,12 @@ public async Task<bool> CreateTablefromFile(string filename,string sheetname)
                     sda.Fill(ds);
                     sWorkbook = sWorkbook.Remove(sWorkbook.LastIndexOf("$"));
                     sWorkbook = sWorkbook + "tbl";
-                    ds.Tables[0].TableName = sWorkbook.ToString();
+                    ds.Tables[0].TableName = Tablename.ToString();
                     DataRow rowDel = ds.Tables[0].Rows[0];
                     CreateTablefromDataTable(ds.Tables[0]); /** Create Table in MYSQL**/
                     // json = DataTableToJSONWithStringBuilder(ds.Tables[0]);
                     ds.Tables[0].Rows.Remove(rowDel);
-                    await MySqlBlkCopyAsync(ds.Tables[0],sWorkbook ); /** Insert data into MYSQL table **/
+                    await MySqlBlkCopyAsync(ds.Tables[0],ds.Tables[0].TableName ); /** Insert data into MYSQL table **/
                     }
 
                 }
@@ -152,6 +216,73 @@ public static void CreateTablefromDataTable(DataTable dataTable)
             var cmd = new MySqlConnector.MySqlCommand(createTableBuilder.ToString(), conn);
             cmd.ExecuteNonQuery();    
   
+    }
+    public  static void UniqueKeyMissingRecords(List<string> srcColList,List<string> dstColList,List<string> UniquekeyList, List<string> boolFields )
+    {
+        string conn_string = "server=localhost;port=3306;database=ExcelCompare;username=root;password=Honda#333;AllowLoadLocalInfile=True";
+        MySqlConnector.MySqlConnection conn = new MySqlConnector.MySqlConnection(conn_string);
+        string col = string.Empty;
+        string callMissingRecords = string.Format("CALL IdentifyMissingRecords ('" );
+        bool isboolField = false;
+        foreach(var Uniquekey in UniquekeyList)
+        {
+            foreach(var flag in boolFields)
+            {
+
+            if(Uniquekey.Equals(flag))
+            {
+            callMissingRecords = callMissingRecords + "(CASE WHEN source.`"   + Uniquekey + "`=\"0\" then \"NO\"";
+            callMissingRecords = callMissingRecords + " WHEN source.`"   + Uniquekey + "`=\"1\" then \"YES\"";
+            callMissingRecords = callMissingRecords + " WHEN source.`"   + Uniquekey + "`=\"NO\" then \"NO\"";
+            callMissingRecords = callMissingRecords + " WHEN source.`"   + Uniquekey + "`=\"YES\" then \"YES\"";
+            callMissingRecords = callMissingRecords + " Else \"\" END),";
+           // boolFields.Remove(flag.ToString());
+            isboolField =true;
+            
+            }
+            }
+             if(isboolField== false)
+             {
+             callMissingRecords = callMissingRecords + "IFNULL(source.`"   + Uniquekey + "`,\"\"),";
+             }
+        }
+        callMissingRecords = callMissingRecords.Remove(callMissingRecords.Length-1);
+        callMissingRecords = callMissingRecords + "','";
+        isboolField= false;
+        foreach(var Uniquekey in UniquekeyList)
+        {
+            foreach(var srcCol in srcColList)
+            {
+                foreach(var flag in boolFields)
+            {
+            if(Uniquekey.Equals(flag))
+                if(Uniquekey.Equals(srcCol))
+                {
+                    int idx = srcColList.IndexOf(srcCol);
+            callMissingRecords = callMissingRecords + "(CASE WHEN destination.`"   + dstColList[idx] + "`=\"0\" then \"NO\"";
+            callMissingRecords = callMissingRecords + " WHEN destination.`"   + dstColList[idx] + "`=\"1\" then \"YES\"";
+            callMissingRecords = callMissingRecords + " WHEN destination.`"   + dstColList[idx] + "`=\"NO\" then \"NO\"";
+            callMissingRecords = callMissingRecords + " WHEN destination.`"   + dstColList[idx] + "`=\"YES\" then \"YES\"";
+            callMissingRecords = callMissingRecords + " Else \"\" END),";
+            isboolField =true;
+                }
+            }
+            if(Uniquekey.Equals(srcCol))
+                {
+                    int idx = srcColList.IndexOf(srcCol);
+            if(isboolField== false)
+             {
+             callMissingRecords = callMissingRecords + "IFNULL(destination.`"   + dstColList[idx] + "`,\"\"),";
+             }
+                }
+            }
+        }
+        callMissingRecords = callMissingRecords.Remove(callMissingRecords.Length-1);
+        callMissingRecords = callMissingRecords + "');";
+        conn.Open();
+        var cmd = new MySqlConnector.MySqlCommand(callMissingRecords.ToString(), conn);
+        cmd.ExecuteNonQuery(); 
+       Console.Write(callMissingRecords);
     }
  private List<MySqlBulkCopyColumnMapping> GetMySqlColumnMapping(DataTable dataTable)
     {
