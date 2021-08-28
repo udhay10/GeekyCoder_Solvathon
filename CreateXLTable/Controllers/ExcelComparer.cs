@@ -77,7 +77,7 @@ srcColList.Add("Payment_Status");
 srcColList.Add("Last_UpdatedDate");
 srcColList.Add("Payment_Comments");
 srcColList.Add("Products");
-srcColList.Add("");
+srcColList.Add("~");
 dstColList.Add("PaymentID");
 dstColList.Add("ContractNo");
 dstColList.Add("ContractType");
@@ -108,18 +108,18 @@ dstColList.Add("ID");
                     string TableName = string.Empty;
                     TableName="source";
                     Console.Write("src file\n");
-                    await CreateTablefromFile(objClass.SourceFile,objClass.SourceSheetName+"$", TableName);/** To create Source Table in MYSQL and insert filedata into the tabel**/
+                  //  await CreateTablefromFile(objClass.SourceFile,objClass.SourceSheetName+"$", TableName);/** To create Source Table in MYSQL and insert filedata into the tabel**/
                 }
                 if(objClass.DestFile != null)
                 {
                     string TableName = string.Empty;
                     TableName="destination";
                     Console.Write("destination file\n");
-                    await CreateTablefromFile(objClass.DestFile,objClass.DestSheetName+"$",TableName);/** To create Destination Table in MYSQL and insert filedata into the tabel**/
+                   // await CreateTablefromFile(objClass.DestFile,objClass.DestSheetName+"$",TableName);/** To create Destination Table in MYSQL and insert filedata into the tabel**/
                 }
                // Console.Write(conn_string);
-                InsertMapppedColumns(srcColList,dstColList,uniqueKey);
-                UniqueKeyMissingRecords(srcColList,dstColList,uniqueKey,boolFields);
+                //InsertMapppedColumns(srcColList,dstColList,uniqueKey,boolFields);
+               // UniqueKeyMissingRecords(srcColList,dstColList,uniqueKey,boolFields);
                 ColumnMismatch(srcColList,dstColList);//Implementation pending
                 // RecordToRecordCount(); //Implementation pending
 
@@ -151,7 +151,7 @@ public async Task<bool> CreateTablefromFile(string filename,string sheetname, st
 
                     sWorkbook = string.Empty;
                     sWorkbook = dtExcelSchema.Rows[i]["TABLE_NAME"].ToString();
-                    Console.Write("\n sWorkBook Name : {0}, Sheetname : {1}\n",sWorkbook,sheetname);
+                   // Console.Write("\n sWorkBook Name : {0}, Sheetname : {1}\n",sWorkbook,sheetname);
                     if(sWorkbook==sheetname)
                     {
                     //sWorkbook = sWorkbook.Replace('$', ' ');
@@ -339,25 +339,27 @@ public async Task<bool> MySqlBlkCopyAsync(DataTable dataTable,string TableName)
       // cmd.ExecuteNonQuery(); 
        Console.Write(callMissingRecords);
     }
-    public static void InsertMapppedColumns(List<String> srcMappedCol,List<string> destMappedColumns,List<string> UniqueKeys)
+    public static void InsertMapppedColumns(List<String> srcMappedCol,List<string> destMappedColumns,List<string> UniqueKeys,List<string> flagFields)
     {
    // string conn_string = "server=localhost;port=3306;database=excelcomparer;username=root;password=Root@123456;AllowLoadLocalInfile=True";
         string conn_string = connectionString;
         MySqlConnector.MySqlConnection conn = new MySqlConnector.MySqlConnection(conn_string);
         string col = string.Empty;
         bool isUniquekey = false;
+        bool isboolField = false;
          string insertColMapping = string.Format("Truncate TABLE ColumnMapping;");
-         insertColMapping = insertColMapping + "INSERT INTO ColumnMapping(Source_Column, Destination_Column, Is_Unique)";
+         insertColMapping = insertColMapping + "INSERT INTO ColumnMapping(Source_Column, Destination_Column, Is_Unique,is_Flag)";
         insertColMapping = insertColMapping + " VALUES " ;
         //Console.Write(destMappedColumns.Count + " : " + srcMappedCol.Count);
         for(int i=0;i<destMappedColumns.Count;i++)
         {
-            insertColMapping =insertColMapping + "(\""+ srcMappedCol[i] + "\"," + "\"" +destMappedColumns[i] + "\",";
+            insertColMapping =insertColMapping + "(case when \""+ srcMappedCol[i] + "\"=\"~\" then Null else \""+srcMappedCol[i] + "\" end,"  ;
+            insertColMapping =insertColMapping + "case when \""+destMappedColumns[i] + "\"=\"~\" then Null else \"" +destMappedColumns[i] + "\" end,";
             
             foreach(var uniqueFiels in UniqueKeys){
             if(srcMappedCol[i].Equals(uniqueFiels))
             {
-                insertColMapping = insertColMapping + "1),";
+                insertColMapping = insertColMapping + "1,";
                 isUniquekey=true;
                 break;
             }
@@ -368,9 +370,27 @@ public async Task<bool> MySqlBlkCopyAsync(DataTable dataTable,string TableName)
             }
             if(isUniquekey==false)
             {
-               insertColMapping = insertColMapping + "0),"; 
+               insertColMapping = insertColMapping + "Null,"; 
             }
-        }
+            foreach(var flag in flagFields){
+            if(srcMappedCol[i].Equals(flag))
+            {
+                insertColMapping = insertColMapping + "1),";
+                isboolField=true;
+                break;
+            }
+            else
+            {
+                isboolField=false;
+            }
+            }
+            if(isboolField==false)
+            {
+               insertColMapping = insertColMapping + "Null),"; 
+            }
+            }
+            
+            
         insertColMapping = insertColMapping.Remove(insertColMapping.Length-1);
         insertColMapping = insertColMapping + ";";
         
@@ -379,9 +399,73 @@ public async Task<bool> MySqlBlkCopyAsync(DataTable dataTable,string TableName)
         cmd.ExecuteNonQuery(); 
 
     }
-    public static void ColumnMismatch(List<string> srcMappedColumns, List<string> dstMappedColumns)
+    public static void ColumnMismatch(List<string> sourceColmn, List<string> destinationColmn)
     {
+            StringBuilder result = new StringBuilder();
+            DataTable dt = new DataTable();
+            dt.Columns.Add("SourceColumnName", typeof(string));
+            dt.Columns.Add("Match", typeof(bool));
+            dt.Columns.Add("DestinationColumnName", typeof(string));
+            dt.Columns.Add("Comments", typeof(string));
+            
+            if (sourceColmn.Count == destinationColmn.Count)
+            {
+                result.Append("Count match no extra column.");
+            }
+            else
+            {
+                result.Append("Count mismatch.");
+                result.Append(Environment.NewLine);
 
+                int Diff = sourceColmn.Count - destinationColmn.Count;
+
+                if (Diff > 0)
+                {
+                    result.Append("Source has " + Diff.ToString() + " more columns then Destination");
+                    result.Append(Environment.NewLine);
+
+                    for (int i = 1; i <= Diff; i++)
+                    {
+                        destinationColmn.Add("~");
+                    }
+                }
+                else
+                {
+                    result.Append("Destination has " + Diff.ToString() + " more columns then Source");
+
+                    for (int i = 1; i <= System.Math.Abs(Diff); i++)
+                    {
+                        sourceColmn.Add("~");
+                    }
+                }
+
+
+
+                for (int i = 0; i < sourceColmn.Count; i++)
+                {
+                    if (sourceColmn[i].Equals(destinationColmn[i]))
+                    {
+                        dt.Rows.Add(sourceColmn[i], true, destinationColmn[i], "");
+                        Console.Write(dt.Rows);
+                    }
+                    else
+                    {
+                        string comments = string.Empty;
+                        if (sourceColmn[i] == "~" || destinationColmn[i] == "~")
+                        {
+                            comments = (sourceColmn[i] == "~") ? "Additional column in Source" : "Additional column in Destination";
+                        }
+                        else
+                        {
+                            comments = "As per mapping the naming is different but it’s the same column";
+                        }
+
+                        dt.Rows.Add(sourceColmn[i], false, destinationColmn[i], comments);
+                        
+                    }
+                }
+            }
+        Console.Write(dt.Rows.Count);
     }
  private List<MySqlBulkCopyColumnMapping> GetMySqlColumnMapping(DataTable dataTable)
     {
