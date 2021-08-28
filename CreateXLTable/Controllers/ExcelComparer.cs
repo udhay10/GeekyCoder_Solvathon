@@ -34,10 +34,10 @@ namespace ExcelComparer.Controllers
         public static string connectionString= conf["ConnectionString:Value"].ToString();
 
 [Route("api/dataload")]
-[HttpGet]
-public async Task<JsonResult> DataLoad( )
+[HttpPost]
+public async Task<JsonResult> DataLoad([FromBody] ExcelComparer1.GetXLObjClass objClass )
 {
-        ExcelComparer1.GetXLObjClass objClass= new ExcelComparer1.GetXLObjClass();
+        ExcelComparer1.GetXLObjClass objClass1= new ExcelComparer1.GetXLObjClass();
             try
             {   object json = string.Empty;
                 objClass.SourceFile =@"C:\Users\UDHAYASANKAR.R\Documents\GitHub\Source.xlsx";
