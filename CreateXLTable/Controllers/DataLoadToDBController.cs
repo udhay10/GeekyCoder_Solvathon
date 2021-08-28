@@ -28,7 +28,7 @@ public void DataLoad()
 DataTable dt = new System.Data.DataTable();
             try
             {
-                //string filenname = @"C:\Users\sani singh\Documents\Excel03.xls";
+                string filename = @"C:\Users\sani singh\Documents\Excel03.xls";
                 string sWorkbook = string.Empty;
                 string ExcelConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + filename + ";Extended Properties='Excel 12.0 xml;HDR=Yes;IMEX=1'";
 

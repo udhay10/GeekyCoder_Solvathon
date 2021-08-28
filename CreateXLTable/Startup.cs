@@ -10,8 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
-namespace CreateXLTable
+namespace ExcelComparer
 {
     public class Startup
     {
@@ -21,8 +22,8 @@ namespace CreateXLTable
             
         }
 
-        public IConfiguration Configuration { get; }
-
+        public IConfiguration Configuration { get;  set;}
+        static IConfiguration conf = (new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.json").Build());
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
